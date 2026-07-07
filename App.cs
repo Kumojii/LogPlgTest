@@ -36,11 +36,11 @@ namespace LogPlgTest
 
             // пайплайн инициализации
             var initPlg = new InitPlg(App.STPWebApi);
+            // REVIEW: А оно нам не стопнет ревит, если долгое подключение будет к серверу ?
             var testBtnInstructionUrl = Task.Run(async () =>
             {
                 return await initPlg.RunInit(testBtnName, testBtnText);
             });
-
 
             testBtn.SetContextualHelp(new ContextualHelp(ContextualHelpType.Url, testBtnInstructionUrl.Result));
 

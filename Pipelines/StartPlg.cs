@@ -29,6 +29,7 @@ namespace LogPlgTest.Pipelines
             // Верификация
             EmpResult = await _api.VerifyEmployee(machineName, userName);
 
+            // REVIEW: Если EmpResult == null, то при &&, EmpResult.Allowed упадёт ведь
             if (EmpResult == null && !EmpResult.Allowed)
                 return ParseRequests(EmpResult, PlgResult);
 
@@ -63,13 +64,15 @@ namespace LogPlgTest.Pipelines
                 EmpResult = await _api.VerifyEmployee(machineName, userName);
             }
 
-            // Проверка наличия плагина 
+            // Проверка наличия плагина
             PlgResult = await _api.VerifyPlugin(plgName, btnName);
+            // REVIEW: Если PlgResult будет null, проверка снизу так же не сработает
             if (PlgResult != null && !PlgResult.Allowed)
                 return ParseRequests(EmpResult, PlgResult);
 
             // Проверка доступа плагина 
             PlgResult.HasAccess = await _api.HasAccessToThePlugin(plgName, btnName, machineName, userName);
+            // REVIEW: HassAccess - bool, а не bool? - сравнение не сработает
             if (PlgResult.HasAccess == null || !PlgResult.HasAccess)
             {
                 PlgResult.Message = "Доступ на плагин запрещён.";
@@ -79,6 +82,7 @@ namespace LogPlgTest.Pipelines
             // Проверка версии плагина
             var response = await _api.CheckPluginVersion(plgName, btnName, plgVersion);
             PlgResult.IsLatest = response.IsLatest;
+            // REVIEW: IsLatest - bool, а не bool? - сравнение не сработает
             if (PlgResult.IsLatest != null && !PlgResult.IsLatest)
             {
                 PlgResult.Message = response.Message;
@@ -96,6 +100,7 @@ namespace LogPlgTest.Pipelines
             else if (plgRes != null && !String.IsNullOrEmpty(plgRes.Message))
                 message = plgRes.Message;
 
+            // REVIEW: У тебя сверху проверка, что если != null. Но если null, то ниже при вызове полей упадёт
             return new VerifyResult()
             {
                 EmpAllowed = empRes.Allowed,

@@ -48,6 +48,7 @@ namespace LogPlgTest.Api
             }
             catch (Exception ex)
             {
+                // REVIEW: MessageBox ошибки в API ? Не лучше просто throw ?
                 MessageBox.Show(ex.ToString());
             }
         }
