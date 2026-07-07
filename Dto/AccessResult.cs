@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace LogPlgTest.Dto
 {
+    // REVIEW: Не используется
     internal class AccessResult
     {
         public bool Allowed { get; set; }

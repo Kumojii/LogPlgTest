@@ -9,6 +9,7 @@ namespace LogPlgTest.Models.LibTimer
 {
     public static class PlgTimers
     {
+        // REVIEW: Точно public ?
         public static Stopwatch _uiTimer = new Stopwatch();
         public static Stopwatch _workTimer = new Stopwatch();
         public static Stopwatch _notifyTimer = new Stopwatch();

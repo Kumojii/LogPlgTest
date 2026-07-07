@@ -21,10 +21,11 @@ using LogPlgTest.Models;
 using LogPlgTest.Models.LibTimer;
 using LogPlgTest.Pipelines;
 
-
+//review2
 namespace LogPlgTest
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    //REVIEW: Program (одна m)
     public class Programm : IExternalCommand
     {
         public Document Doc { get; set; }
@@ -69,6 +70,7 @@ namespace LogPlgTest
                     MachineName = _machineName,
 
                     FileName = Doc.Title,
+                    //REVIEW: Заглушка ? Просто выше есть filePath
                     FilePath = "ExempleFilePath",
                     Date = DateTime.Now,
                 };
@@ -128,6 +130,8 @@ namespace LogPlgTest
 
                 // пайплайн логирования 
                 var sendLog = new SendLog(App.STPWebApi);
+
+                // REVIEW: В SendLog описал, что метод async void Run не дождётся реального результат отправки
                 Task.Run(async () => sendLog.Run(_log, _verifyRes)).GetAwaiter().GetResult();
             }
         }

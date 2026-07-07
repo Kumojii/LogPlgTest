@@ -22,6 +22,7 @@ namespace LogPlgTest.Pipelines
             _api = api;
         }
 
+        // REVIEW: В запросе на этот метод есть GetResult(), но async void сразу же успешно завершится на await
         public async void Run(LogCreateRequest log, VerifyResult verifyResult)
         {
             if (log != null && verifyResult != null)
