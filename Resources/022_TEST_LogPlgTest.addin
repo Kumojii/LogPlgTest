@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+        <AddIn Type="Application">
+	<Name>LogPlgTest</Name>
+        <Assembly>C:\Users\SadchikovAV\source\repos\LogPlgTest\bin\Debug\LogPlgTest.dll</Assembly>
+        <AddInId>5db531ae-f147-4840-9734-d6b05ebf4ae5</AddInId>
+        <FullClassName>LogPlgTest.App</FullClassName>
+        <VendorId>STP</VendorId>
+        <VendorDescription>"Критическая ошибка приложения. Обратись в TOR-DEV отдел."</VendorDescription>
+        </AddIn>
+</RevitAddIns>
