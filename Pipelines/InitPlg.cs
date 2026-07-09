@@ -17,19 +17,15 @@ namespace LogPlgTest.Pipelines
             _api = api;
         }
 
-        //public async Task<plgDto> Run(string )
 
-        public async Task<string> RunInit(string pluginName, string buttonName)
+        public async Task<string> Run(string pluginName, string buttonName)
         {
-            try
-            {
-                return await _api.GetInstruction(pluginName, buttonName);
-            }
-            catch (Exception ex)
-            {
-                return standartUrl;
-            }
-        }
+            var result = await _api.GetInstruction(pluginName, buttonName);
 
+            if (!result.Success || String.IsNullOrWhiteSpace(result.Data))
+                return standartUrl;
+
+            return result.Data;
+        }
     }
 }

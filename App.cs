@@ -32,13 +32,14 @@ namespace LogPlgTest
             string assemblyPath = Assembly.GetExecutingAssembly().Location;
             RibbonPanel panel = GetRibbonPanel(application, tabName, panelName);
 
-            PushButtonData testBtn = new PushButtonData(testBtnName, testBtnText, assemblyPath, typeof(Programm).FullName);
+            PushButtonData testBtn = new PushButtonData(testBtnName, testBtnText, assemblyPath, typeof(Program).FullName);
 
             // пайплайн инициализации
-            var initPlg = new InitPlg(App.STPWebApi);
+            // TODO: таймаут
+            var initPlg = new InitPlg(STPWebApi);
             var testBtnInstructionUrl = Task.Run(async () =>
             {
-                return await initPlg.RunInit(testBtnName, testBtnText);
+                return await initPlg.Run(testBtnName, testBtnText);
             });
 
 

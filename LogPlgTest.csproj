@@ -90,21 +90,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\ApiResult.cs" />
+    <Compile Include="Api\ApiResultExtensions.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="Dto\AccessResult.cs" />
     <Compile Include="Dto\PluginVersionResult.cs" />
     <Compile Include="Dto\LogCreateRequest.cs" />
     <Compile Include="Dto\EmployeeRequest.cs" />
     <Compile Include="Dto\EmployeeResult.cs" />
     <Compile Include="Dto\PluginResult.cs" />
     <Compile Include="Enums\LogResult.cs" />
+    <Compile Include="Exceptions\ServerUnavailableException.cs" />
     <Compile Include="Models\LibTimer\PlgTimers.cs" />
     <Compile Include="Models\LibTimer\Timer.cs" />
     <Compile Include="Models\VerifyResult.cs" />
     <Compile Include="Pipelines\InitPlg.cs" />
     <Compile Include="Pipelines\SendLog.cs" />
     <Compile Include="Pipelines\StartPlg.cs" />
-    <Compile Include="Programm.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Api\ApiClient.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

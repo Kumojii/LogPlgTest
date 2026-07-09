@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using LogPlgTest.Api;
 using LogPlgTest.Dto;
+using LogPlgTest.Exceptions;
 using LogPlgTest.Models;
 
 
@@ -22,26 +23,25 @@ namespace LogPlgTest.Pipelines
             _api = api;
         }
 
-        public async void Run(LogCreateRequest log, VerifyResult verifyResult)
+        public async Task Run(LogCreateRequest log, VerifyResult verifyResult)
         {
-            if (log != null && verifyResult != null)
+            if (log == null || verifyResult == null)
             {
-                CheckVerifyResult(ref log, verifyResult);
-
-                try
-                {
-                    _logRequest = log;
-                    await _api.SendLog(_logRequest);
-                }
-                catch (Exception ex)
-                {
-                    // локальное логирование
-                    MessageBox.Show(ex.ToString());
-                }
+                // TODO: локальное логирование
+                return;
             }
-            else
+
+            CheckVerifyResult(ref log, verifyResult);
+
+            _logRequest = log;
+
+            try
             {
-                // локальное логирование
+                (await _api.SendLog(_logRequest)).ThrowIfFailed();
+            }
+            catch (ServerUnavailableException)
+            {
+                // TODO локальное логирование
             }
         }
 
@@ -51,7 +51,6 @@ namespace LogPlgTest.Pipelines
             {
                 log.Result = "Cancelled";
                 log.Message = verifyResult.Message;
-                MessageBox.Show(verifyResult.Message);
             }
 
             return verifyResult.Result;

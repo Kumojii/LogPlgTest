@@ -14,6 +14,9 @@ namespace LogPlgTest.Models
         public bool PlgAllowed { get; set; }
         public bool HasAccess { get; set; }
 
+        public bool ServerUnavailable { get; set; }
+        public bool AllowRun { get; set; }
+
         public bool Result { get; set; }
         public string Message { get; set; }
 

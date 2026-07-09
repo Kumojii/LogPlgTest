@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Shapes;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
-using LogPlgTest.Api;
 using LogPlgTest.Dto;
 using LogPlgTest.Enums;
 using LogPlgTest.Models;
@@ -25,7 +15,7 @@ using LogPlgTest.Pipelines;
 namespace LogPlgTest
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class Programm : IExternalCommand
+    public class Program : IExternalCommand
     {
         public Document Doc { get; set; }
 
@@ -43,7 +33,6 @@ namespace LogPlgTest
             try
             {
                 PlgTimers.RefreshTimers();
-                PlgTimers.StartTimer(Timer.Work);
                 string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 _plgVersion = string.Join(".", assemblyVersion.Split('.').Take(3));
 
@@ -69,7 +58,7 @@ namespace LogPlgTest
                     MachineName = _machineName,
 
                     FileName = Doc.Title,
-                    FilePath = "ExempleFilePath",
+                    FilePath = filePath,
                     Date = DateTime.Now,
                 };
 
@@ -79,7 +68,6 @@ namespace LogPlgTest
                 {
                     return await startPlg.Run(_plgName, _plgBtn, _machineName, _userName, _plgVersion);
                 }).GetAwaiter().GetResult();
-
 
                 PlgTimers.StartTimer(Timer.Notification);
                 PlgTimers.StartTimer(Timer.Interface);
@@ -128,7 +116,7 @@ namespace LogPlgTest
 
                 // пайплайн логирования 
                 var sendLog = new SendLog(App.STPWebApi);
-                Task.Run(async () => sendLog.Run(_log, _verifyRes)).GetAwaiter().GetResult();
+                Task.Run(async () => sendLog.Run(_log, _verifyRes)).GetAwaiter();
             }
         }
     }

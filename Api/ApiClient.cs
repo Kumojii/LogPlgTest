@@ -21,136 +21,214 @@ namespace LogPlgTest.Api
         public ApiClient()
         {
             _client = new HttpClient();
-            // IP сервера
             _client.BaseAddress = new Uri("http://192.168.149.20:5261/");
+            _client.Timeout = TimeSpan.FromSeconds(5);
         }
 
-        public async Task SendLogAsync(string message)
+        private async Task<ApiResult<T>> GetAsync<T>(string url)
         {
             try
             {
-                var log = new
-                {
-                    message = message,
-                    level = "Info",
-                    source = "LogPlgTest",
-                    timestamp = DateTime.Now
-                };
-
-                var json = JsonSerializer.Serialize(log);
-
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _client.PostAsync("api/logs", content);
+                var response = await _client.GetAsync(url).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
-                    MessageBox.Show("response.IsSuccessStatusCode = false");
+                {
+                    return new ApiResult<T>
+                    {
+                        Success = false,
+                        Error = $"HTTP {(int)response.StatusCode}"
+                    };
+                }
+
+                var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                var data = JsonSerializer.Deserialize<T>(json, _jsonSerOpt);
+
+                if (data == null)
+                {
+                    return new ApiResult<T>
+                    {
+                        Success = false,
+                        Error = "Сервер вернул пустой ответ."
+                    };
+                }
+
+                return new ApiResult<T>
+                {
+                    Success = true,
+                    Data = data
+                };
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                return new ApiResult<T>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    Exception = ex
+                };
             }
         }
 
-        public async Task<EmployeeResult> VerifyEmployee(string machineName, string userName)
+        private async Task<ApiResult<TResponse>> PostAsync<TRequest, TResponse>(string url, TRequest request)
         {
-            var response = await _client.GetAsync(
-                $"api/employee/verify?machineName={machineName}&userName={userName}")
-                .ConfigureAwait(false);
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
 
-            response.EnsureSuccessStatusCode();
+                using (var content = new StringContent(
+                    json,
+                    Encoding.UTF8,
+                    "application/json"))
+                {
 
-            var json = await response.Content.ReadAsStringAsync()
-                .ConfigureAwait(false);
 
-            return JsonSerializer.Deserialize<EmployeeResult>(json, _jsonSerOpt);
+                    var response = await _client.PostAsync(url, content)
+                        .ConfigureAwait(false);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return new ApiResult<TResponse>
+                        {
+                            Success = false,
+                            Error = $"HTTP {(int)response.StatusCode}"
+                        };
+                    }
+
+                    var responseJson = await response.Content.ReadAsStringAsync()
+                        .ConfigureAwait(false);
+
+                    if (string.IsNullOrWhiteSpace(responseJson))
+                    {
+                        return new ApiResult<TResponse>
+                        {
+                            Success = false,
+                            Error = "Пустой ответ сервера."
+                        };
+                    }
+
+                    var data = JsonSerializer.Deserialize<TResponse>(
+                        responseJson,
+                        _jsonSerOpt);
+
+                    if (data == null)
+                    {
+                        return new ApiResult<TResponse>
+                        {
+                            Success = false,
+                            Error = "Не удалось десериализовать ответ."
+                        };
+                    }
+
+                    return new ApiResult<TResponse>
+                    {
+                        Success = true,
+                        Data = data
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResult<TResponse>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    Exception = ex
+                };
+            }
         }
 
-        public async Task<PluginResult> VerifyPlugin(string pluginName, string buttonName)
+        private async Task<ApiResult> PostAsync<TRequest>(string url, TRequest request)
         {
-            var response = await _client.GetAsync(
-                $"api/plugin/verify?pluginName={pluginName}&buttonName={buttonName}")
-                .ConfigureAwait(false);
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
 
-            response.EnsureSuccessStatusCode();
+                using (var content = new StringContent(
+                    json,
+                    Encoding.UTF8,
+                    "application/json"))
+                {
 
-            var json = await response.Content.ReadAsStringAsync();
+                    var response = await _client.PostAsync(url, content)
+                        .ConfigureAwait(false);
 
-            return JsonSerializer.Deserialize<PluginResult>(json, _jsonSerOpt);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return new ApiResult
+                        {
+                            Success = false,
+                            Error = $"HTTP {(int)response.StatusCode}"
+                        };
+                    }
+
+                    return new ApiResult
+                    {
+                        Success = true
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResult
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    Exception = ex
+                };
+            }
         }
 
-        public async Task<string> GetInstruction(string pluginName, string buttonName)
+        public Task<ApiResult<EmployeeResult>> VerifyEmployee(string machineName, string userName)
         {
-            var response = await _client.GetAsync(
-             $"api/plugin/instruction?pluginName={pluginName}&buttonName={buttonName}")
-             .ConfigureAwait(false);
+            return GetAsync<EmployeeResult>(
+                $"api/employee/verify?machineName={Uri.EscapeDataString(machineName)}&userName={Uri.EscapeDataString(userName)}");
 
-            response.EnsureSuccessStatusCode();
-
-            var url = await response.Content.ReadAsStringAsync();
-
-            return url;
         }
 
-        public async Task<bool> HasAccessToThePlugin(string pluginName, string buttonName, string machineName, string userName)
+        public Task<ApiResult<PluginResult>> VerifyPlugin(string pluginName, string buttonName)
         {
-            var response = await _client.GetAsync(
-                $"api/plugin/access?pluginName={pluginName}&buttonName={buttonName}&machineName={machineName}&userName={userName}")
-                .ConfigureAwait(false);
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<bool>(jsonResponse, _jsonSerOpt);
+            return GetAsync<PluginResult>(
+                $"api/plugin/verify?pluginName={Uri.EscapeDataString(pluginName)}&buttonName={Uri.EscapeDataString(buttonName)}");
         }
 
-        public async Task<PluginVersionResult> CheckPluginVersion(string pluginName, string buttonName, string version)
+        public Task<ApiResult<string>> GetInstruction(string pluginName, string buttonName)
         {
-            var response = await _client.GetAsync(
-                $"api/plugin/version?pluginName={pluginName}&buttonName={buttonName}&version={version}")
-                .ConfigureAwait(false); 
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<PluginVersionResult>(jsonResponse, _jsonSerOpt);
+            return GetAsync<string>(
+                $"api/plugin/instruction?pluginName={Uri.EscapeDataString(pluginName)}&buttonName={Uri.EscapeDataString(buttonName)}");
         }
 
-        public async Task SendLog(LogCreateRequest request)
+        public Task<ApiResult<bool>> HasAccessToThePlugin(string pluginName, string buttonName, string machineName, string userName)
         {
-            var json = JsonSerializer.Serialize(request);
+            return GetAsync<bool>($"api/plugin/access?" +
+                $"pluginName={Uri.EscapeDataString(pluginName)}" +
+                $"&buttonName={Uri.EscapeDataString(buttonName)}" +
+                $"&machineName={Uri.EscapeDataString(machineName)}" +
+                $"&userName={Uri.EscapeDataString(userName)}");
 
-            var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await _client.PostAsync(
-                "api/logs/sendLog",
-                content);
-
-            response.EnsureSuccessStatusCode();
         }
 
-        public async Task<bool> Register(EmployeeRequest request)
+        public Task<ApiResult<PluginVersionResult>> CheckPluginVersion(string pluginName, string buttonName, string version)
         {
-            var json = JsonSerializer.Serialize(request);
-
-            var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await _client.PostAsync(
-                "api/employee/register",
-                content);
-
-            response.EnsureSuccessStatusCode();
-
-            return true;
+            return GetAsync<PluginVersionResult>($"api/plugin/version?" +
+                $"pluginName={Uri.EscapeDataString(pluginName)}" +
+                $"&buttonName={Uri.EscapeDataString(buttonName)}" +
+                $"&version={Uri.EscapeDataString(version)}");
         }
 
+        public Task<ApiResult> SendLog(LogCreateRequest request)
+        {
+            return PostAsync("api/logs/sendLog", request);
+        }
+
+        public Task<ApiResult> Register(EmployeeRequest request)
+        {
+            return PostAsync("api/employee/register", request);
+        }
+
+        public Task<ApiResult> Update(EmployeeRequest request)
+        {
+            return PostAsync("api/employee/update", request);
+        }
     }
 }

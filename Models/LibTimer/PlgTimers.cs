@@ -9,9 +9,9 @@ namespace LogPlgTest.Models.LibTimer
 {
     public static class PlgTimers
     {
-        public static Stopwatch _uiTimer = new Stopwatch();
-        public static Stopwatch _workTimer = new Stopwatch();
-        public static Stopwatch _notifyTimer = new Stopwatch();
+        private static Stopwatch _uiTimer = new Stopwatch();
+        private static Stopwatch _workTimer = new Stopwatch();
+        private static Stopwatch _notifyTimer = new Stopwatch();
 
         public static TimeSpan InterfaceTime { get; set; } = TimeSpan.Zero;
         public static TimeSpan WorkTime { get; set; } = TimeSpan.Zero;

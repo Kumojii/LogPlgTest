@@ -7,6 +7,7 @@ using System.Windows;
 using Autodesk.Revit.UI;
 using LogPlgTest.Api;
 using LogPlgTest.Dto;
+using LogPlgTest.Exceptions;
 using LogPlgTest.Models;
 
 
@@ -26,66 +27,95 @@ namespace LogPlgTest.Pipelines
 
         public async Task<VerifyResult> Run(string plgName, string btnName, string machineName, string userName, string plgVersion)
         {
-            // Верификация
-            EmpResult = await _api.VerifyEmployee(machineName, userName);
-
-            if (EmpResult == null && !EmpResult.Allowed)
-                return ParseRequests(EmpResult, PlgResult);
-
-            // Регистрация
-            if (EmpResult != null && EmpResult.NeedRegistr)
+            try
             {
-                MessageBox.Show(EmpResult.Message);
-                EmployeeRequest empReq = new EmployeeRequest()
+                // Верификация пользователя
+                EmpResult = (await _api.VerifyEmployee(machineName, userName))
+                    .GetDataOrThrow();
+
+                if (!EmpResult.Allowed)
+                    return ParseRequests(EmpResult, PlgResult);
+
+                // Регистрация пользователя
+                if (EmpResult.NeedRegistr)
                 {
-                    Name = "Имя",
-                    Surname = "Фамилия",
-                    Lastname = "Отчество",
-                    Department = null,
+                    MessageBox.Show(EmpResult.Message);
+                    EmployeeRequest empReq = new EmployeeRequest()
+                    {
+                        Name = "Имя",
+                        Surname = "Фамилия",
+                        Lastname = "Отчество",
+                        Department = null,
 
-                    CompName = Environment.MachineName,
-                    WindowName = Environment.UserName,
-                };
+                        CompName = Environment.MachineName,
+                        WindowName = Environment.UserName,
+                    };
 
-                // ui регистрации c редактированием empReq
+                    // TODO: ui регистрации c редактированием empReq
 
-                await _api.Register(empReq);
-                EmpResult = await _api.VerifyEmployee(machineName, userName);
-            }
+                    (await _api.Register(empReq)).ThrowIfFailed();
+                    EmpResult = (await _api.VerifyEmployee(machineName, userName))
+                        .GetDataOrThrow();
+                }
 
-            // Обновление данных пользователя
-            if (EmpResult != null && EmpResult.NeedUpdate)
-            {
-                MessageBox.Show(EmpResult.Message);
+                // Обновление данных пользователя
+                if (EmpResult.NeedUpdate)
+                {
+                    EmployeeRequest empReq = new EmployeeRequest()
+                    {
+                        Name = "Имя",
+                        Surname = "Фамилия",
+                        Lastname = "Отчество",
+                        Department = null,
 
-                // ui обновление данных c редактированием empReq
+                        CompName = Environment.MachineName,
+                        WindowName = Environment.UserName,
+                    };
 
-                EmpResult = await _api.VerifyEmployee(machineName, userName);
-            }
+                    // TODO: ui обновление данных c редактированием empReq
 
-            // Проверка наличия плагина 
-            PlgResult = await _api.VerifyPlugin(plgName, btnName);
-            if (PlgResult != null && !PlgResult.Allowed)
+
+                    (await _api.Update(empReq)).ThrowIfFailed();
+                    EmpResult = (await _api.VerifyEmployee(machineName, userName))
+                        .GetDataOrThrow();
+                }
+
+                // Проверка существования плагина
+                PlgResult = (await _api.VerifyPlugin(plgName, btnName))
+                    .GetDataOrThrow();
+
+                if (!PlgResult.Allowed)
+                    return ParseRequests(EmpResult, PlgResult);
+
+                // Проверка доступа
+                PlgResult.HasAccess = (await _api.HasAccessToThePlugin(plgName, btnName, machineName, userName))
+                    .GetDataOrThrow();
+
+                if (!PlgResult.HasAccess)
+                {
+                    PlgResult.Message = "Доступ на плагин запрещён.";
+                    return ParseRequests(EmpResult, PlgResult);
+                }
+
+                // Проверка версии
+                var plgVerRes = (await _api.CheckPluginVersion(plgName, btnName, plgVersion))
+                    .GetDataOrThrow();
+
+                PlgResult.IsLatest = plgVerRes.IsLatest;
+
+                if (!PlgResult.IsLatest)
+                {
+                    PlgResult.Message = plgVerRes.Message;
+                    return ParseRequests(EmpResult, PlgResult);
+                }
+
                 return ParseRequests(EmpResult, PlgResult);
-
-            // Проверка доступа плагина 
-            PlgResult.HasAccess = await _api.HasAccessToThePlugin(plgName, btnName, machineName, userName);
-            if (PlgResult.HasAccess == null || !PlgResult.HasAccess)
+            }
+            catch (ServerUnavailableException)
             {
-                PlgResult.Message = "Доступ на плагин запрещён.";
-                return ParseRequests(EmpResult, PlgResult);
+                return AllowOffline();
             }
 
-            // Проверка версии плагина
-            var response = await _api.CheckPluginVersion(plgName, btnName, plgVersion);
-            PlgResult.IsLatest = response.IsLatest;
-            if (PlgResult.IsLatest != null && !PlgResult.IsLatest)
-            {
-                PlgResult.Message = response.Message;
-                return ParseRequests(EmpResult, PlgResult);
-            }
-
-            return ParseRequests(EmpResult, PlgResult);
         }
 
         private VerifyResult ParseRequests(EmployeeResult empRes, PluginResult plgRes)
@@ -109,5 +139,23 @@ namespace LogPlgTest.Pipelines
             };
         }
 
+        private VerifyResult AllowOffline()
+        {
+            return new VerifyResult
+            {
+                EmpAllowed = true,
+                EmpNeedRegistr = false,
+                EmpNeedUpdate = false,
+
+                PlgAllowed = true,
+                HasAccess = true,
+
+                ServerUnavailable = true,
+                AllowRun = true,
+
+                Result = true,
+                Message = "Сервер недоступен. Плагин запущен в автономном режиме."
+            };
+        }
     }
 }
