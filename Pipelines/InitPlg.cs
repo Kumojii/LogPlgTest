@@ -17,7 +17,6 @@ namespace LogPlgTest.Pipelines
             _api = api;
         }
 
-
         public async Task<string> Run(string pluginName, string buttonName)
         {
             var result = await _api.GetInstruction(pluginName, buttonName);
