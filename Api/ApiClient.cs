@@ -18,11 +18,13 @@ namespace LogPlgTest.Api
         private readonly HttpClient _client;
         private JsonSerializerOptions _jsonSerOpt = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        public ApiClient()
+        public ApiClient(Uri baseUri)
         {
-            _client = new HttpClient();
-            _client.BaseAddress = new Uri("http://192.168.149.20:5261/");
-            _client.Timeout = TimeSpan.FromSeconds(5);
+            _client = new HttpClient
+            {
+                BaseAddress = baseUri,
+                Timeout = TimeSpan.FromSeconds(5)
+            };
         }
 
         private async Task<ApiResult<T>> GetAsync<T>(string url)

@@ -77,6 +77,8 @@ namespace LogPlgTest
                 // Логика плагина 
                 ///
 
+                throw new TaskCanceledException();
+
                 _log.Result = LogResult.Succeeded.ToString();
                 PlgTimers.StopTimers();
 
@@ -84,13 +86,14 @@ namespace LogPlgTest
             }
             catch (TaskCanceledException tce)
             {
-                PlgTimers.StartTimer(Timer.Notification);
-                MessageBox.Show(tce.Message);
-                PlgTimers.StopTimers();
-
                 _log.Result = LogResult.Cancelled.ToString();
-                if (tce.Message != "Отмена")
+                if (tce.Message != "Отменена задача.")
+                {
                     _log.Message = tce.Message;
+                    PlgTimers.StartTimer(Timer.Notification);
+                    MessageBox.Show(tce.Message);
+                    PlgTimers.StopTimers();
+                }
 
                 return Result.Cancelled;
             }

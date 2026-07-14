@@ -17,7 +17,6 @@ namespace LogPlgTest.Models.LibTimer
         public static TimeSpan WorkTime { get; set; } = TimeSpan.Zero;
         public static TimeSpan NotifyTime { get; set; } = TimeSpan.Zero;
 
-
         public static void StartTimer(Timer timer)
         {
             _uiTimer.Stop();

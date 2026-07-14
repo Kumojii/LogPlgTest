@@ -15,7 +15,7 @@ namespace LogPlgTest
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class App : IExternalApplication
     {
-        public static ApiClient STPWebApi { get; set; } = new ApiClient();
+        public static ApiClient STPWebApi { get; set; } = new ApiClient(new Uri("http://192.168.149.20:5261/"));
 
         private readonly string tabName = "tttt"; // Отдел
         private readonly string panelName = "WebLogPlg123"; // Произвольно
@@ -35,7 +35,6 @@ namespace LogPlgTest
             PushButtonData testBtn = new PushButtonData(testBtnName, testBtnText, assemblyPath, typeof(Program).FullName);
 
             // пайплайн инициализации
-            // TODO: таймаут
             var initPlg = new InitPlg(STPWebApi);
             var testBtnInstructionUrl = Task.Run(async () =>
             {
