@@ -1,78 +1,56 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.UI;
+using STPLib.General.Base;
 using STPLib.WebLog.Api;
+using STPLib.WebLog.Enums;
 using STPLib.WebLog.Pipelines;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LogPlgTest
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class App : IExternalApplication
+    public class App : BaseApp, IExternalApplication
     {
-        public static ApiClient STPWebApi { get; set; } = new ApiClient(new Uri("http://192.168.149.20:5261/"));
+        private const string _tabName = "WebApiTab"; // Отдел
+        private const string _panelName = "WebApiPanel"; // Произвольно
+        public const string PlgName = "Тест"; // tor_db: Plugins."Name"
+        public const string PlgBtnName = "Кнопка Тест"; // tor_db: Plugins."Button"
+        public const Department PlgDepartment = Department.STP; // tor_db: Plugins."Department"
 
-        private readonly string tabName = "tttt"; // Отдел
-        private readonly string panelName = "WebLogPlg123"; // Произвольно
-        private readonly string testBtnName = "Тест"; // tor_db: Plugins."Name"
-        private readonly string testBtnText = "Кнопка Тест"; // tor_db: Plugins."Button"
+        // ПРОАДАКШЕН
+        // - таймаут всегда 5 секунд, адрес — из share/fallback
+        // -  swagger address http://192.168.149.20:5261/swagger/index.html
+        //public static ApiClient STPWebApi { get; set; } = new ApiClient();
+
+        // ТЕСТИРОВАНИЕ
+        // - таймаут не ограничен, адрес из перегрузки
+        // -  swagger address http://localhost:5261/swagger/index.html
+        public static ApiClient STPWebApi = new ApiClient(new Uri("http://localhost:5261/"));
+
+        // ТЕСТИРОВАНИЕ
+        // - настройка таймаута, адрес из перегрузки
+        // -  swagger address http://localhost:5261/swagger/index.html
+        //public static ApiClient STPWebApi = new ApiClient(new Uri("http://localhost:5261/"), TimeSpan.FromSeconds(300));
+
+        public Result OnStartup(UIControlledApplication application)
+        {
+            RibbonPanel panel = CreateOrGetPanel(application, _tabName/*Department.STP.ToString()*/, _panelName);
+
+            AddButton(
+                buttonType: RibbonItemType.PushButton,
+                ribbonPanel: panel,
+                image: null,
+                buttonName: PlgName,
+                buttonText: PlgBtnName,
+                urlInstr: Task.Run(async () => await new InitPlg(STPWebApi).Run(PlgName, PlgBtnName, PlgDepartment.ToString())).GetAwaiter().GetResult(),
+                commandPath: typeof(Command).FullName);
+
+            return Result.Succeeded;
+        }
 
         public Result OnShutdown(UIControlledApplication application)
         {
             return Result.Succeeded;
-        }
-
-        public Result OnStartup(UIControlledApplication application)
-        {
-            string assemblyPath = Assembly.GetExecutingAssembly().Location;
-            RibbonPanel panel = GetRibbonPanel(application, tabName, panelName);
-
-            PushButtonData testBtn = new PushButtonData(testBtnName, testBtnText, assemblyPath, typeof(Program).FullName);
-
-            // пайплайн инициализации
-            var initPlg = new InitPlg(STPWebApi);
-            var testBtnInstructionUrl = Task.Run(async () =>
-            {
-                return await initPlg.Run(testBtnName, testBtnText);
-            });
-
-
-            testBtn.SetContextualHelp(new ContextualHelp(ContextualHelpType.Url, testBtnInstructionUrl.Result));
-
-            panel.AddItem(testBtn);
-            return Result.Succeeded;
-        }
-
-
-        public RibbonPanel GetRibbonPanel(UIControlledApplication a, string tab, string namePanel)
-        {
-            try
-            {
-                a.CreateRibbonTab(tab);
-            }
-            catch { }
-
-            try
-            {
-                return a.CreateRibbonPanel(tab, namePanel);
-            }
-            catch
-            {
-                foreach (RibbonPanel RPanel in a.GetRibbonPanels(tab))
-                {
-                    if (RPanel.Name == namePanel)
-                    {
-                        return RPanel;
-                    }
-                }
-            }
-
-            return null;
         }
     }
 }
