@@ -19,15 +19,17 @@ namespace LogPlgTest
 
 #if !DEBUG
         // ПРОАДАКШЕН
+        // - Порт 5261 - Prodaction (DB: tor-db."public" Docker.Name:revit_logger_api)
         // - таймаут всегда 5 секунд, адрес — из share/fallback
         // -  swagger address http://192.168.149.20:5261/swagger/index.html
         //public static ApiClient STPWebApi { get; set; } = new ApiClient();
 
 #else
         // ТЕСТИРОВАНИЕ
-        // - таймаут не ограничен, адрес из перегрузки
-        // -  swagger address http://localhost:5261/swagger/index.html
-        public static ApiClient STPWebApi = new ApiClient(new Uri("http://localhost:5261/")/*, TimeSpan.FromSeconds(300)*/);
+        // - Порт 5255 - Stage (DB: tor-db."test_weblogs" Docker.Name:revit_logger_api_test)
+        // - таймаут 5 секунд (можно перпедать свой), адрес из перегрузки
+        // -  swagger address http://192.168.149.20:5255/swagger/index.html
+        public static ApiClient STPWebApi = new ApiClient(new Uri("http://192.168.149.20:5255/")/*, TimeSpan.FromSeconds(300)*/);
 #endif
 
         public Result OnStartup(UIControlledApplication application)
