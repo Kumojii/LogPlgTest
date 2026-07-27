@@ -17,20 +17,18 @@ namespace LogPlgTest
         public const string PlgBtnName = "Кнопка Тест"; // tor_db: Plugins."Button"
         public const Department PlgDepartment = Department.STP; // tor_db: Plugins."Department"
 
+#if !DEBUG
         // ПРОАДАКШЕН
         // - таймаут всегда 5 секунд, адрес — из share/fallback
         // -  swagger address http://192.168.149.20:5261/swagger/index.html
         //public static ApiClient STPWebApi { get; set; } = new ApiClient();
 
+#else
         // ТЕСТИРОВАНИЕ
         // - таймаут не ограничен, адрес из перегрузки
         // -  swagger address http://localhost:5261/swagger/index.html
-        public static ApiClient STPWebApi = new ApiClient(new Uri("http://localhost:5261/"));
-
-        // ТЕСТИРОВАНИЕ
-        // - настройка таймаута, адрес из перегрузки
-        // -  swagger address http://localhost:5261/swagger/index.html
-        //public static ApiClient STPWebApi = new ApiClient(new Uri("http://localhost:5261/"), TimeSpan.FromSeconds(300));
+        public static ApiClient STPWebApi = new ApiClient(new Uri("http://localhost:5261/")/*, TimeSpan.FromSeconds(300)*/);
+#endif
 
         public Result OnStartup(UIControlledApplication application)
         {

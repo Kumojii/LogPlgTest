@@ -22,17 +22,7 @@ namespace LogPlgTest
         private const Department _plgDepartment = App.PlgDepartment;
         private readonly string _machineName = Environment.MachineName;
         private VerifyResult _verifyRes;
-        public Command()
-            : base(
-                  pluginName: _plgName,
-                  pluginButton: _plgBtn,
-
-#if DEBUG
-                isLogEnabled: false)
-#else
-                isLogEnabled: true)
-#endif
-        { }
+        public Command() : base(_plgName, _plgBtn) { }
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -43,16 +33,27 @@ namespace LogPlgTest
                 InitializeFields(commandData);
                 InitializeLogger();
 
+#if DEBUG
+                _verifyRes = new VerifyResult()
+                {
+                    EmpAllowed = true,
+                    PlgAllowed = true,
+                    HasAccess = true,
+                    Result = true,
+                    AllowRun = true,
+                };
+#else
                 _verifyRes = Task.Run(async () => await new StartPlg(App.STPWebApi)
                     .Run(_plgName, _plgBtn, _plgDepartment.ToString(), _machineName, _userName, _pluginVersion, UiApp))
                     .GetAwaiter()
                     .GetResult();
+#endif
 
                 if (!_verifyRes.Result)
                     throw new PluginCanceledException($"{_verifyRes.Message}");
 
                 PlgTimers.StartTimer(Timer.Work);
-                
+
                 /// Логика плагина
 
                 Logger.Log.Elements = 55555;
