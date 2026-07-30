@@ -115,6 +115,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitlab-ci.yml" />
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Resources\022_TEST_LogPlgTest.addin" />
