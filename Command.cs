@@ -29,21 +29,10 @@ namespace LogPlgTest
                 InitializeFields(commandData);
                 InitializeLogger();
 
-#if DEBUG
-                _verifyRes = new VerifyResult()
-                {
-                    EmpAllowed = true,
-                    PlgAllowed = true,
-                    HasAccess = true,
-                    Result = true,
-                    AllowRun = true,
-                };
-#else
                 _verifyRes = Task.Run(async () => await new StartPlg(App.STPWebApi)
                     .Run(PluginName, PluginButton, App.PlgDepartment.ToString(), Environment.MachineName, _userName, _pluginVersion, UiApp))
                     .GetAwaiter()
                     .GetResult();
-#endif
 
                 if (!_verifyRes.Result)
                     throw new PluginCanceledException($"{_verifyRes.Message}");
