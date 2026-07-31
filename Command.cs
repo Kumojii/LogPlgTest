@@ -17,12 +17,11 @@ namespace LogPlgTest
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class Command : BaseCommand, IExternalCommand
     {
-        private const string _plgName = App.PlgName; //tor_db: Plugins."Name"
-        private const string _plgBtn = App.PlgBtnName; //tor_db: Plugins."Button"
+
         private const Department _plgDepartment = App.PlgDepartment;
         private readonly string _machineName = Environment.MachineName;
         private VerifyResult _verifyRes;
-        public Command() : base(_plgName, _plgBtn) { }
+        public Command() : base(App.PlgName, App.PlgBtnName) { }
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -44,7 +43,7 @@ namespace LogPlgTest
                 };
 #else
                 _verifyRes = Task.Run(async () => await new StartPlg(App.STPWebApi)
-                    .Run(_plgName, _plgBtn, _plgDepartment.ToString(), _machineName, _userName, _pluginVersion, UiApp))
+                    .Run(PluginName, PluginButton, _plgDepartment.ToString(), _machineName, _userName, _pluginVersion, UiApp))
                     .GetAwaiter()
                     .GetResult();
 #endif
