@@ -18,7 +18,7 @@ namespace LogPlgTest
     public class Command : BaseCommand, IExternalCommand
     {
         private VerifyResult _verifyRes;
-        public Command() : base(App.PlgName, App.PlgBtnName) { }
+        public Command() : base(App.PlgName, App.PlgBtnName, System.Reflection.Assembly.GetExecutingAssembly()) { }
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
