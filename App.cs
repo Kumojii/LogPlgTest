@@ -28,7 +28,7 @@ namespace LogPlgTest
         // - таймаут 5 секунд (можно перпедать свой), адрес из перегрузки
         // -  swagger address http://192.168.149.20:5255/swagger/index.html
         public static ApiClient STPWebApi = new ApiClient(new Uri("http://192.168.149.20:5255/")/*, TimeSpan.FromSeconds(300)*/);
-
+        
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel panel = CreateOrGetPanel(application, _tabName/*Department.STP.ToString()*/, _panelName);

@@ -11,6 +11,7 @@ using STPLib.WebLog.Models;
 using System.Windows;
 using STPLib.WebLog.Enums;
 using STPLib.Utils.Messanger;
+using System.Reflection;
 
 namespace LogPlgTest
 {
@@ -18,7 +19,7 @@ namespace LogPlgTest
     public class Command : BaseCommand, IExternalCommand
     {
         private VerifyResult _verifyRes;
-        public Command() : base(App.PlgName, App.PlgBtnName, System.Reflection.Assembly.GetExecutingAssembly()) { }
+        public Command() : base(App.PlgName, App.PlgBtnName, Assembly.GetExecutingAssembly()) { }
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -29,21 +30,10 @@ namespace LogPlgTest
                 InitializeFields(commandData);
                 InitializeLogger();
 
-#if DEBUG
-                _verifyRes = new VerifyResult()
-                {
-                    EmpAllowed = true,
-                    PlgAllowed = true,
-                    HasAccess = true,
-                    Result = true,
-                    AllowRun = true,
-                };
-#else
                 _verifyRes = Task.Run(async () => await new StartPlg(App.STPWebApi)
                     .Run(PluginName, PluginButton, App.PlgDepartment.ToString(), Environment.MachineName, _userName, _pluginVersion, UiApp))
                     .GetAwaiter()
                     .GetResult();
-#endif
 
                 if (!_verifyRes.Result)
                     throw new PluginCanceledException($"{_verifyRes.Message}");

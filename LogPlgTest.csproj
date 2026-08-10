@@ -61,7 +61,8 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
-    <Reference Include="STPLib200">
+    <Reference Include="STPLib200, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Z:\Библиотека\!BIM\REVIT\RVT_ADDIN\Плагины Revit\СТП\!Библиотека\STPLib\2.0.0\STPLib200.dll</HintPath>
     </Reference>
     <Reference Include="System" />
