@@ -8,6 +8,8 @@ using STPLib.WebLog.Pipelines;
 
 //test pipeline7
 //asdasdasdasdasdas
+//asdasdasdas
+//123123123123123
 namespace LogPlgTest
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
