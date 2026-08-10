@@ -11,7 +11,6 @@ using STPLib.WebLog.Models;
 using System.Windows;
 using STPLib.WebLog.Enums;
 using STPLib.Utils.Messanger;
-using System.Reflection;
 
 namespace LogPlgTest
 {
@@ -19,7 +18,7 @@ namespace LogPlgTest
     public class Command : BaseCommand, IExternalCommand
     {
         private VerifyResult _verifyRes;
-        public Command() : base(App.PlgName, App.PlgBtnName, Assembly.GetExecutingAssembly()) { }
+        public Command() : base(App.PlgName, App.PlgBtnName, System.Reflection.Assembly.GetExecutingAssembly()) { }
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
