@@ -16,6 +16,7 @@ using STPLib.WebLog.Pipelines;
 //dfgldlkhrdhlrdjihidrh
 //dfgdfgdfgdfgdr
 //вапвапвкпквпвкпвкп
+//Абуга гага
 namespace LogPlgTest
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
