@@ -25,9 +25,7 @@ namespace LogPlgTest
             try
             {
                 PlgTimers.RefreshTimers();
-                HardLoads.LoadAssemblyResolveConfig();
-                InitializeFields(commandData);
-                InitializeLogger();
+                Initialize(commandData);
 
                 _verifyRes = Task.Run(async () => await new StartPlg(App.STPWebApi)
                     .Run(PluginName, PluginButton, App.PlgDepartment.ToString(), Environment.MachineName, _userName, _pluginVersion, UiApp))
@@ -62,7 +60,7 @@ namespace LogPlgTest
             }
             finally
             {
-                FinalizeLogger();
+                Finalize();
                 Task.Run(() => new SendLog(App.STPWebApi).Run(Logger.Log, _verifyRes)).GetAwaiter();
             }
         }

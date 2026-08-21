@@ -35,7 +35,7 @@ namespace LogPlgTest
             RibbonPanel panel = CreateOrGetPanel(application, _tabName/*Department.STP.ToString()*/, _panelName);
 
             AddButton(
-                buttonType: RibbonItemType.PushButton,
+                buttonType: STPLib.General.Base.Enums.RibbonItemType.PushButton,
                 ribbonPanel: panel,
                 image: null,
                 buttonName: PlgName,
