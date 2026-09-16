@@ -6,7 +6,17 @@ using STPLib.WebLog.Api;
 using STPLib.WebLog.Enums;
 using STPLib.WebLog.Pipelines;
 
-//test pipeline8
+//test pipeline7
+//asdasdasdasdasdas
+//asdasdasdas
+//123123123123123
+//asdasdasd
+//fgdfgdfg
+//asdasdasdsad
+//dfgldlkhrdhlrdjihidrh
+//dfgdfgdfgdfgdr
+//вапвапвкпквпвкпвкп
+//sdfsefesfes
 namespace LogPlgTest
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]

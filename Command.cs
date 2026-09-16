@@ -27,6 +27,7 @@ namespace LogPlgTest
                 PlgTimers.RefreshTimers();
                 Initialize(commandData);
 
+
                 _verifyRes = Task.Run(async () => await new StartPlg(App.STPWebApi)
                     .Run(PluginName, PluginButton, App.PlgDepartment.ToString(), Environment.MachineName, _userName, _pluginVersion, UiApp))
                     .GetAwaiter()
